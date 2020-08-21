@@ -14,11 +14,16 @@
       "./src/test/setup.ts"
     ]
   },
+  "config": {
+    "mongodbMemoryServer": {
+      "version": "latest"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@git-tix-dj/common": "^1.0.17",
+    "@git-tix-dj/common": "^1.0.18",
     "@types/cookie-session": "^2.0.41",
     "@types/express": "^4.17.7",
     "@types/jsonwebtoken": "^8.5.0",
@@ -34,13 +39,13 @@
     "node-nats-streaming": "^0.3.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "ts-node-dev": "^1.0.0-pre.58",
+    "ts-node-dev": "^1.0.0-pre.59",
     "typescript": "^3.9.7"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
     "@types/supertest": "^2.0.10",
-    "jest": "^26.4.0",
+    "jest": "^26.4.1",
     "mongodb-memory-server": "^6.6.4",
     "supertest": "^4.0.2",
     "ts-jest": "^26.2.0"
