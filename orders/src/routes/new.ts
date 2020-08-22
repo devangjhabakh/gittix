@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import express, { Request, Response } from 'express';
 import {
   requireAuth,
@@ -31,39 +31,32 @@ router.post(
   async (req: Request, res: Response) => {
     const { ticketId } = req.body;
 
-    //Find the ticket the user is trying to order in the ticket database
-
+    // Find the ticket the user is trying to order in the database
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
       throw new NotFoundError();
     }
 
-    //Make sure that this ticket is not already reserved
-    //Run query to look at all orders. Find an order where the ticket is the ticket that we just found and the order status is not cancelled
-    //If the query returns something, we are waste.
-
+    // Make sure that this ticket is not already reserved
     const isReserved = await ticket.isReserved();
     if (isReserved) {
-      throw new BadRequestError('Ticket is already reserved!');
+      throw new BadRequestError('Ticket is already reserved');
     }
 
-    //Calculate an expiration date for this order
-
+    // Calculate an expiration date for this order
     const expiration = new Date();
     expiration.setSeconds(expiration.getSeconds() + EXPIRATION_WINDOW_SECONDS);
 
-    //Build the order and save it to the database
-
+    // Build the order and save it to the database
     const order = Order.build({
       userId: req.currentUser!.id,
       status: OrderStatus.Created,
       expiresAt: expiration,
-      ticket: ticket,
+      ticket,
     });
-
     await order.save();
 
-    //Publish an event saying that an order was created
+    // Publish an event saying that an order was created
     new OrderCreatedPublisher(natsWrapper.client).publish({
       id: order.id,
       version: order.version,

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { OrderStatus } from '@git-tix-dj/common';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
+import { OrderStatus } from '@git-tix-dj/common';
 import { TicketDoc } from './ticket';
 
 export { OrderStatus };

@@ -3,9 +3,9 @@ import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 import { Order, OrderStatus } from './order';
 
 interface TicketAttrs {
+  id: string;
   title: string;
   price: number;
-  id: string;
 }
 
 export interface TicketDoc extends mongoose.Document {
@@ -23,7 +23,7 @@ interface TicketModel extends mongoose.Model<TicketDoc> {
   }): Promise<TicketDoc | null>;
 }
 
-const schema = new mongoose.Schema(
+const ticketSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -45,27 +45,24 @@ const schema = new mongoose.Schema(
   }
 );
 
-schema.set('versionKey', 'version');
-schema.plugin(updateIfCurrentPlugin);
+ticketSchema.set('versionKey', 'version');
+ticketSchema.plugin(updateIfCurrentPlugin);
 
-schema.statics.findByEvent = (event: { id: string; version: number }) => {
+ticketSchema.statics.findByEvent = (event: { id: string; version: number }) => {
   return Ticket.findOne({
     _id: event.id,
     version: event.version - 1,
   });
 };
-schema.statics.build = (attrs: TicketAttrs) => {
+ticketSchema.statics.build = (attrs: TicketAttrs) => {
   return new Ticket({
     _id: attrs.id,
     title: attrs.title,
     price: attrs.price,
   });
 };
-
-schema.methods.isReserved = async function () {
-  // We use a keyword function instead of an arrow function because the mongoose module speaks older javascript and
-  // our current ticket document that we called isReserved on must be accessed using 'this'
-
+ticketSchema.methods.isReserved = async function () {
+  // this === the ticket document that we just called 'isReserved' on
   const existingOrder = await Order.findOne({
     ticket: this,
     status: {
@@ -80,6 +77,6 @@ schema.methods.isReserved = async function () {
   return !!existingOrder;
 };
 
-const Ticket = mongoose.model<TicketDoc, TicketModel>('Ticket', schema);
+const Ticket = mongoose.model<TicketDoc, TicketModel>('Ticket', ticketSchema);
 
 export { Ticket };
