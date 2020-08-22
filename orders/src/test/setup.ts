@@ -13,7 +13,7 @@ declare global {
 jest.mock('../nats-wrapper');
 
 let mongo: any;
-beforeAll(async () => {
+beforeAll(async (done) => {
   process.env.JWT_KEY = 'asdfasdf';
   mongo = new MongoMemoryServer();
   const mongoUri = await mongo.getUri();
@@ -21,6 +21,7 @@ beforeAll(async () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
+  done();
 });
 
 beforeEach(async () => {
@@ -32,9 +33,10 @@ beforeEach(async () => {
   }
 });
 
-afterAll(async () => {
+afterAll(async (done) => {
   await mongo.stop();
   await mongoose.connection.close();
+  done();
 });
 
 global.signin = () => {
