@@ -12,6 +12,7 @@ import { Message } from 'node-nats-streaming';
 
 const setup = async () => {
   const listener = new ExpirationCompleteListener(natsWrapper.client);
+  console.log('a');
 
   const ticket = Ticket.build({
     id: mongoose.Types.ObjectId().toHexString(),
@@ -19,6 +20,7 @@ const setup = async () => {
     price: 20,
   });
   await ticket.save();
+  console.log('b');
 
   const order = Order.build({
     status: OrderStatus.Created,
@@ -27,6 +29,7 @@ const setup = async () => {
     ticket,
   });
   await order.save();
+  console.log('c');
 
   const data: ExpirationCompleteEvent['data'] = {
     orderId: order.id,
@@ -41,11 +44,15 @@ const setup = async () => {
 };
 
 it('updates the order status to cancelled', async () => {
+  console.log('1');
   const { listener, order, data, msg } = await setup();
+  console.log('2');
 
   await listener.onMessage(data, msg);
+  console.log('3');
 
   const updatedOrder = await Order.findById(order.id);
+  console.log('4');
 
   expect(updatedOrder!.status).toEqual(OrderStatus.Cancelled);
 });
