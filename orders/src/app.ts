@@ -3,6 +3,7 @@ import 'express-async-errors';
 import { json } from 'body-parser';
 import cookieSession from 'cookie-session';
 import { errorHandler, NotFoundError, currentUser } from '@git-tix-dj/common';
+
 import { deleteOrderRouter } from './routes/delete';
 import { indexOrderRouter } from './routes/index';
 import { newOrderRouter } from './routes/new';
@@ -17,7 +18,6 @@ app.use(
     secure: process.env.NODE_ENV !== 'test',
   })
 );
-
 app.use(currentUser);
 
 app.use(deleteOrderRouter);
@@ -25,8 +25,7 @@ app.use(indexOrderRouter);
 app.use(newOrderRouter);
 app.use(showOrderRouter);
 
-//If all else fails
-app.all('*', () => {
+app.all('*', async (req, res) => {
   throw new NotFoundError();
 });
 

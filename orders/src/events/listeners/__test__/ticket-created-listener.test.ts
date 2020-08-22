@@ -1,14 +1,15 @@
+import { Message } from 'node-nats-streaming';
 import mongoose from 'mongoose';
 import { TicketCreatedEvent } from '@git-tix-dj/common';
 import { TicketCreatedListener } from '../ticket-created-listener';
 import { natsWrapper } from '../../../nats-wrapper';
-import { Message } from 'node-nats-streaming';
 import { Ticket } from '../../../models/ticket';
 
 const setup = async () => {
-  //Create an instance of the listener
+  // create an instance of the listener
   const listener = new TicketCreatedListener(natsWrapper.client);
-  //Create a fake data event
+
+  // create a fake data event
   const data: TicketCreatedEvent['data'] = {
     version: 0,
     id: new mongoose.Types.ObjectId().toHexString(),
@@ -16,8 +17,9 @@ const setup = async () => {
     price: 10,
     userId: new mongoose.Types.ObjectId().toHexString(),
   };
-  //Create a fake message object
-  //@ts-ignore
+
+  // create a fake message object
+  // @ts-ignore
   const msg: Message = {
     ack: jest.fn(),
   };
@@ -28,10 +30,10 @@ const setup = async () => {
 it('creates and saves a ticket', async () => {
   const { listener, data, msg } = await setup();
 
-  //Call the onMessage function with the data object + the message object
+  // call the onMessage function with the data object + message object
   await listener.onMessage(data, msg);
 
-  //Write assertions to make sure the ack function is called
+  // write assertions to make sure a ticket was created!
   const ticket = await Ticket.findById(data.id);
 
   expect(ticket).toBeDefined();
@@ -42,9 +44,9 @@ it('creates and saves a ticket', async () => {
 it('acks the message', async () => {
   const { data, listener, msg } = await setup();
 
-  //Call the onMessage function with the data object + the message object
+  // call the onMessage function with the data object + message object
   await listener.onMessage(data, msg);
 
-  //Write assertions to make sure the ack function is called
+  // write assertions to make sure ack function is called
   expect(msg.ack).toHaveBeenCalled();
 });

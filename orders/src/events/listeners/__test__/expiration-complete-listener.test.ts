@@ -1,14 +1,10 @@
+import mongoose from 'mongoose';
+import { Message } from 'node-nats-streaming';
+import { OrderStatus, ExpirationCompleteEvent } from '@git-tix-dj/common';
 import { ExpirationCompleteListener } from '../expiration-complete-listener';
 import { natsWrapper } from '../../../nats-wrapper';
-import { Ticket } from '../../../models/ticket';
 import { Order } from '../../../models/order';
-import mongoose from 'mongoose';
-import {
-  OrderStatus,
-  ExpirationCompleteEvent,
-  TicketCreatedEvent,
-} from '@git-tix-dj/common';
-import { Message } from 'node-nats-streaming';
+import { Ticket } from '../../../models/ticket';
 
 const setup = async () => {
   const listener = new ExpirationCompleteListener(natsWrapper.client);
@@ -19,10 +15,9 @@ const setup = async () => {
     price: 20,
   });
   await ticket.save();
-
   const order = Order.build({
     status: OrderStatus.Created,
-    userId: 'adfad',
+    userId: 'alskdfj',
     expiresAt: new Date(),
     ticket,
   });
@@ -32,7 +27,7 @@ const setup = async () => {
     orderId: order.id,
   };
 
-  //@ts-ignore
+  // @ts-ignore
   const msg: Message = {
     ack: jest.fn(),
   };
@@ -46,11 +41,10 @@ it('updates the order status to cancelled', async () => {
   await listener.onMessage(data, msg);
 
   const updatedOrder = await Order.findById(order.id);
-
   expect(updatedOrder!.status).toEqual(OrderStatus.Cancelled);
 });
 
-it('emits an OrderCancelled event', async () => {
+it('emit an OrderCancelled event', async () => {
   const { listener, order, data, msg } = await setup();
 
   await listener.onMessage(data, msg);
@@ -60,7 +54,6 @@ it('emits an OrderCancelled event', async () => {
   const eventData = JSON.parse(
     (natsWrapper.client.publish as jest.Mock).mock.calls[0][1]
   );
-
   expect(eventData.id).toEqual(order.id);
 });
 
