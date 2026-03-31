@@ -1,0 +1,84 @@
+---
+description: Rules for implementing Figma designs in this repository's Next.js client using existing component patterns, Bootstrap styling conventions, and the Figma MCP workflow.
+globs:
+  - "client/components/**/*.js"
+  - "client/pages/**/*.js"
+  - "client/hooks/**/*.js"
+alwaysApply: false
+---
+
+# Figma MCP Integration Rules for This Codebase
+
+These rules define how to translate Figma inputs into production code for this repository. Follow them for every Figma-driven change.
+
+## Stack and Project Context
+
+- Frontend framework: Next.js Pages Router (`client/pages`), React (JavaScript).
+- Styling system: Bootstrap utility and component classes imported globally in `client/pages/_app.js`.
+- Component directories:
+  - Shared UI/navigation components: `client/components/`
+  - Route-level views: `client/pages/`
+  - Reusable request/data hooks: `client/hooks/`
+
+## Required Figma Workflow (Do Not Skip)
+
+1. Run `get_design_context` first for the exact Figma node(s) to implement.
+2. If the payload is too large/truncated, run `get_metadata` and then re-run `get_design_context` for only required node IDs.
+3. Run `get_screenshot` for visual verification of the same node(s)/variant.
+4. Only after context + screenshot are collected, fetch assets and start implementation.
+5. Convert Figma output into this project's conventions (Next.js pages + JavaScript + Bootstrap classes).
+6. Validate final UI against screenshot for 1:1 layout, spacing, typography intent, and interaction behavior.
+
+## Component and File Organization Rules
+
+- IMPORTANT: Reuse existing code before creating new files.
+  - Reuse `client/components/header.js` for top navigation patterns.
+  - Reuse `client/hooks/useRequest.js` for form submission + API error handling patterns.
+- Place new shared presentational components in `client/components/`.
+- Place route-specific implementations in `client/pages/**` (matching Pages Router conventions).
+- Place reusable API/form state logic in `client/hooks/`.
+- Keep filenames and component names consistent with current style (lowercase filenames, default exports where existing code does so).
+
+## Styling Rules
+
+- IMPORTANT: Use Bootstrap classes first; do not introduce Tailwind or CSS-in-JS for Figma work in this repo.
+- IMPORTANT: Never add inline hardcoded style objects unless there is no Bootstrap equivalent.
+- Prefer existing Bootstrap primitives already used in codebase:
+  - Layout: `container`, `d-flex`, `justify-content-*`, `align-items-*`
+  - Navigation: `navbar`, `nav`, `nav-item`, `nav-link`, `navbar-brand`
+  - Feedback: `alert`, `alert-danger`
+  - Tables/forms/buttons: standard Bootstrap classes
+- If Figma includes custom visual values not covered by Bootstrap, add minimal scoped CSS only as a last resort and keep it colocated with the relevant page/component.
+
+## Figma-to-Code Translation Rules
+
+- Treat Figma MCP React/Tailwind output as design intent, not drop-in code style.
+- Replace utility-first class output with Bootstrap class equivalents.
+- Preserve semantic HTML and accessibility:
+  - Use headings in logical order.
+  - Use button elements for actions and links for navigation.
+  - Preserve label/input associations in forms.
+- Follow existing data-fetching conventions:
+  - Use page `getInitialProps` where route data is fetched.
+  - Use `buildClient` and `useRequest` patterns for API calls and error rendering.
+- Respect existing routing patterns with `next/link`, including dynamic routes such as `/tickets/[ticketId]`.
+
+## Asset Handling Rules
+
+- IMPORTANT: If Figma MCP provides a localhost asset URL, use that URL/source directly during implementation.
+- IMPORTANT: Do not install new icon/image libraries for Figma tickets.
+- IMPORTANT: Do not replace provided assets with placeholders when a concrete asset source is available.
+- Store static assets intended for Next.js runtime under `client/public/` (create directory only when needed).
+
+## Quality and Verification
+
+- Match Figma visually while staying within existing project conventions.
+- Check responsive behavior at common breakpoints when layout is non-trivial.
+- Ensure error states follow existing alert pattern from `useRequest`.
+- Keep implementation minimal and consistent with existing JavaScript style in `client/`.
+
+## Non-Goals / Avoid
+
+- Do not migrate this app to TypeScript as part of Figma implementation.
+- Do not introduce new global styling frameworks.
+- Do not refactor unrelated existing files while implementing a Figma node.
